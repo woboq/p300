@@ -1,0 +1,32 @@
+Support of the WebDAV SEARCH standard in p300
+---------------------------------------------
+Sebastian Breier, Seba_B@gmx.net, 2008-09-12, v1.0
+
+p300 supports WebDAV SEARCH as specified in [1].
+However, support is not complete.
+Here is a list of differences to the standard (hopefully most of them) and a couple of other important things.
+
+- No Query Schema Discovery
+- Only basicsearch Grammar
+- Search arbiter is ignored
+
+Queries
+-------
+- Only support for "select", "from" and "where" elements
+- "select" must contain "allprop"
+- "from" must contain "scope"
+- "scope" must contain both "href" and "depth"
+- "href" must contain "/shares/"
+- "depth" must contain "infinity"
+- "where" must contain an "eq" element
+- "eq" must contain both a "prop" and a "literal" element
+- "prop" must contain "displayname"
+- "literal" is the search keywords
+
+Replies
+-------
+- Replies should conform to WebDAV SEARCH
+- Reply "href" element will always be an URL relative to the search host
+- If a reply element is a directory, it will have "contentlength" of 0 and an associated "resourcetype" of "collection"
+
+[1] http://greenbytes.de/tech/webdav/draft-reschke-webdav-search-latest.html 

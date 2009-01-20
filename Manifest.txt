@@ -1,0 +1,3 @@
+Main-Class: de.guruz.p300.Main
+X-p300-Main-Class: de.guruz.p300.MainDialog
+SplashScreen-Image: splash.png

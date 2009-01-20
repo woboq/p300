@@ -1,0 +1,58 @@
+body 
+{
+ font-family:Verdana;
+ font-size:12px;
+ background-color:#FFFFFF;
+}
+h1 {color:#000000;}
+h2 {color:#000000;}
+h3 {color:#000000;}
+
+code {
+color:#0000ff;
+}
+pre
+{
+ color:#0000ff;
+}
+a:link, a:visited, a:active, a:hover
+{ 
+  color:#000080;
+}
+
+#title {
+border:1px solid #000000;
+background-color:#efefef;
+}
+#left {
+border:1px solid #000000;
+background-color:#efefef;
+}
+#content {
+border:1px solid #000000;
+background-color:#efefef;
+}
+.searchresultblock {
+  // The block containing all search results (shares, files)
+}
+.searchresultshare {
+  // A share in the search results
+}
+.searchresultfile {
+  // A file or directory in the search results
+}
+.searchtermhighlight {
+  // The matching part of a filename
+}
+.searcharea {
+  // The left bar area containing the search form
+}
+.searchstring {
+  // The input field containing the search string
+}
+.searchbutton {
+  // The button starting the search
+}
+.searchtype {
+  // Search type option field
+}
