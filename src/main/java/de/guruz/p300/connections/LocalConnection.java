@@ -59,15 +59,14 @@ import java.io.ByteArrayOutputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import de.guruz.p300.utils.ByteArrayUtils;
 
 /**
  * A local (loop) connection not needing any networking Used for testing
  * purposes
- * 
+ *
  * @author tomcat
- * 
+ *
  */
 public class LocalConnection implements SynchronousLogicalStreamConnection {
 
@@ -95,7 +94,7 @@ public class LocalConnection implements SynchronousLogicalStreamConnection {
 			return readString(indexLineEnd + lineEnd.length);
 		}
 	}
-	
+
 	/**
 	 * Read count bytes as a String
 	 * @param count
@@ -128,11 +127,11 @@ public class LocalConnection implements SynchronousLogicalStreamConnection {
 	}
 
 	public void writeUTF8(String s) throws Exception {
-		write (s.getBytes("UTF-8"));		
+		write (s.getBytes("UTF-8"));
 	}
 
 	public int readBytes(byte[] buf, int count) throws Exception {
-		throw new NotImplementedException ();
+		throw new UnsupportedOperationException();
 	}
 
 	public ReadableByteChannel asReadableByteChannel() {
@@ -172,7 +171,7 @@ public class LocalConnection implements SynchronousLogicalStreamConnection {
 
 	public void setTimeout(long msecs) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
