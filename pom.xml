@@ -10,6 +10,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <skipTests>false</skipTests>
     </properties>
 
     <dependencies>
@@ -89,6 +90,8 @@
                 <version>2.17</version>
                 <configuration>
                     <skipTests>${skipTests}</skipTests>
+                    <runOrder>random</runOrder>
+                    <failIfNoTests>false</failIfNoTests>
                     <excludes>
                         <exclude>de/guruz/p300/tests/manual/*.java</exclude>
                     </excludes>
