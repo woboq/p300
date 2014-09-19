@@ -55,19 +55,19 @@
 */
 package de.guruz.p300.hosts;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Observable;
-import java.util.Observer;
-
 import de.guruz.p300.Configuration;
 import de.guruz.p300.MainDialog;
+import de.guruz.p300.jmdnsdnssd.DNSSDHelper;
 import de.guruz.p300.logging.D;
 import de.guruz.p300.search.Indexer;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.ServiceLoader;
 
 /**
  * Here we store all discovered hosts
@@ -211,7 +211,7 @@ public class HostMap implements Observer, DNSSDCallbackHook {
 
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Generate a String that contains the searchindex information
 	 * This can be sent out to requesting hosts
@@ -223,9 +223,9 @@ public class HostMap implements Observer, DNSSDCallbackHook {
 		if (lastIndexFileCount < 0 || lastIndexAllSize < 0) {
 			return "";
 		}
-		
+
 		StringWriter writer = new StringWriter();
-		
+
 		writer.append("p300 0.1 searchindex ");
 		Configuration configuration = Configuration.instance();
 		writer.append(configuration.getUniqueHash());
@@ -234,13 +234,13 @@ public class HostMap implements Observer, DNSSDCallbackHook {
 		writer.append(" ");
 		writer.append(Long.toString(lastIndexAllSize));
 		writer.append(" \n");
-		
+
 		return writer.toString();
 	}
 
 	/**
 	 * not used right now
-	 * 
+	 *
 	 * @param h
 	 */
 	public void DNSSDDiscovered(Host h) {
@@ -250,63 +250,49 @@ public class HostMap implements Observer, DNSSDCallbackHook {
 		// if (!MainDialog.isOSX())
 		// return;
 
-		try {
-			Class<?> c = null;
-			Object o = null;
+		Iterator<DNSSDHelperHook> providers = ServiceLoader.load(DNSSDHelperHook.class).iterator();
+		List<DNSSDHelperHook> listProviders = new ArrayList<DNSSDHelperHook>();
 
-			// try to use the installed bonjour
-
-			try {
-				String className = "de.guruz.p300.applednssd.DNSSDHelper";
-				c = Class.forName(className);
-				o = c.newInstance();
-				this.dnssdHelperHook = (DNSSDHelperHook) o;
-			} catch (Throwable t) {
-				// t.printStackTrace();
-			}
-
-			// try to use jmdns if bonjour is not here
-			if (o == null) {
-				try {
-					// in cwd
-					File jmdnsJarFile = new File(System.getProperty("user.dir"));
-					jmdnsJarFile = new File(jmdnsJarFile.getParentFile(),
-							"jmdns.jar");
-					URL jmdnsJarURL = jmdnsJarFile.toURI().toURL();
-
-					// in $HOME/.p300
-					File jmdnsJarURLDotP300File = new File(Configuration
-							.configDirFileName("jmdns.jar"));
-					URL jmdnsJarURLDotP300URL = jmdnsJarURLDotP300File.toURI().toURL();
-
-					URLClassLoader ucl = new URLClassLoader(new URL[] {
-							jmdnsJarURL, jmdnsJarURLDotP300URL }, ClassLoader
-							.getSystemClassLoader());
-
-					String className = "de.guruz.p300.jmdnsdnssd.DNSSDHelper";
-					c = Class.forName(className, true, ucl);
-					o = c.newInstance();
-					this.dnssdHelperHook = (DNSSDHelperHook) o;
-				} catch (Throwable t) {
-					// t.printStackTrace();
-				}
-			}
-
-			// do we have anything at least? =)
-
-			if (this.dnssdHelperHook != null) {
-				this.dnssdHelperHook.registerOurselves(MainDialog
-						.getCurrentHTTPPort());
-				this.dnssdHelperHook.setCallback(this);
-			} else {
-				D.out("Zeroconf: No appropriate class found");
-				// D.out(System.getProperty("java.class.path"));
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
+		while (providers.hasNext()) {
+			DNSSDHelperHook nextProvider = (DNSSDHelperHook) providers.next();
+			listProviders.add(nextProvider);
+			D.out("DNSSD hook found: " + nextProvider.getClass().getCanonicalName());
 		}
 
+		//TODO needs a better final solution
+		/**
+		 * depending on the number of DNSSDHelperHook implementations...<br>
+		 * - if there is only a single one we take it<br>
+		 * - if there are more then one we take the first alternative imlementation in the list<br>
+		 * <br>
+		 * That way it would be possible to use a different DNSSD implementation.<br>
+		 * <br>
+		 * For the case that there is more then one alternative implementation there is currently no
+		 * easy way to control which one is taken (except classpath contortions, etc.).<br>
+		 * Either the applications could support only one single alternative or there could be a
+		 * possiblity in the properties UI to select between the alternatives.
+		 */
+		if (listProviders.size() == 1) {
+			this.dnssdHelperHook = listProviders.get(0);
+		} else {
+			for (DNSSDHelperHook hook : listProviders) {
+				if (hook.getClass() == DNSSDHelper.class) {
+					continue;
+				}
+				this.dnssdHelperHook = hook;
+				break;
+			}
+		}
+
+		// do we have anything at least? =)
+
+		if (this.dnssdHelperHook != null) {
+			this.dnssdHelperHook.registerOurselves(MainDialog.getCurrentHTTPPort());
+			this.dnssdHelperHook.setCallback(this);
+		} else {
+			D.out("Zeroconf: No appropriate class found");
+			// D.out(System.getProperty("java.class.path"));
+		}
 	}
 
 	DNSSDHelperHook dnssdHelperHook;
