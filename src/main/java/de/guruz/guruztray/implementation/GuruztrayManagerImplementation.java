@@ -56,7 +56,15 @@ public class GuruztrayManagerImplementation implements GuruztrayManager, MouseLi
         // workaround to disable system tray in Gnome 3
         //
         // see following comment for an explanation
-        // https.//bugzilla.redhat.com/show_bug.cgi?id=683768#c4
+        // https://bugzilla.redhat.com/show_bug.cgi?id=683768#c4
+        //
+        // bugreport on Oracle
+        // JDK 7 http://bugs.java.com/bugdatabase/view_bug.do?bug_id=2217240
+        // JDK 8 http://bugs.java.com/bugdatabase/view_bug.do?bug_id=7103610
+        //
+        // even using JDK 1.8.0_25-b17 the system tray doesn't work
+        // on Gnome 3.8+8 using the example code from Oracle
+        // http://docs.oracle.com/javase/tutorial/uiswing/misc/systemtray.html
         if ("gnome".equals(System.getenv("XDG_SESSION_DESKTOP"))) {
             throw new Exception("System tray support has been disabled for Gnome desktop environment");
         }
